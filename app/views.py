@@ -12,10 +12,10 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-
+from django.conf import settings
 # Create your views here.
 
-API_KEY = "AIzaSyBdNNLAMqq95zJ5sj8bAGyDl1sApcVqrzs"
+API_KEY = settings.API_KEY
 client = genai.Client(api_key = API_KEY)
 
 def clean_text(text):
@@ -45,6 +45,7 @@ class Login(GenericAPIView):
 class AskAI(ListCreateAPIView):
     queryset  = AIFeedModel.objects.all()
     serializer_class = AIFeedSerializer
+    # permission_classes = [AllowAny]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
