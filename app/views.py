@@ -19,7 +19,9 @@ API_KEY = settings.API_KEY
 client = genai.Client(api_key = API_KEY)
 
 def clean_text(text):
-    return re.sub(r"[^\w\s]","",text)
+    text = text.strip()
+    text = re.sub(r'\n{3,}','\n\n',text)
+    return text
 
 
 class register(ListCreateAPIView):
@@ -54,10 +56,20 @@ class AskAI(ListCreateAPIView):
     def create(self, request,*args,**kwargs):
         question = request.data.get("question")
         user= request.user
+        prompt = f"""
+You are an assistant. Respond in **Markdown format** . Use:
+- `#` for headings
+- Bullet points were appropriate
+- Triple Backticks for code blocks
+- Avoid repeting the question
+
+Question : {question}
+
+"""
         try:
             response = client.models.generate_content(
                 model = "gemini-2.0-flash",
-                contents = question
+                contents = prompt
             )
             clean_answer = clean_text(response.text)
         except Exception as e:
